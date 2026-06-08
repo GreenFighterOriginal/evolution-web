@@ -414,13 +414,32 @@ export const gameDeployRegeneratedAnimal = (game, {userId, cardId, animalId, sou
     ;
 }
 
+export const gameMoveAnimal = (game, {animalId, position}) => {
+  const animal = game.locateAnimal(animalId);
+  if (!animal) return game;
+  const ownerId = animal.ownerId;
+  const continent = game.getPlayer(ownerId).continent;
+  // remove and re-insert at position
+  const without = continent.remove(animalId);
+  const newContinent = OrderedMap(without.entrySeq().splice(position, 0, [animal.id, animal]));
+  return game.setIn(['players', ownerId, 'continent'], newContinent)
+    .update(addToGameLog(['gameMoveAnimal', logAnimal(animal), position]));
+}
+
 export const traitMoveFood = (game, {animalId, amount, sourceType, sourceId}) => {
   ensureParameter(animalId, 'string');
   ensureParameter(amount, 'number');
   const animal = game.locateAnimal(animalId);
 
+  // Curse reduces incoming food gain for cursed animals
+  let modifiedAmount = amount;
+  if (animal && animal.getIn(['flags', TRAIT_ANIMAL_FLAG.CURSED])) {
+    // cursed animals receive 1 less food from any source (but not negative changes)
+    if (modifiedAmount > 0) modifiedAmount = Math.max(0, modifiedAmount - 1);
+  }
+
   let updatedGame = game
-    .updateIn(['players', animal.ownerId, 'continent', animal.id], animal => animal.receiveFood(amount));
+    .updateIn(['players', animal.ownerId, 'continent', animal.id], animal => animal.receiveFood(modifiedAmount));
 
   switch (sourceType) {
     case 'GAME': {
@@ -473,6 +492,14 @@ const mapDetachSpecialization = (specializationIds) => entity => {
 
 export const animalDeath = (game, {type, animalId, data}) => {
   const animal = game.locateAnimal(animalId);
+  // Phoenix trait: if animal has TraitPhoenix and not yet reborn, prevent final death and set reborn flag
+  if (animal && animal.hasTrait && animal.hasTrait(tt.TraitPhoenix) && !animal.getIn(['flags', TRAIT_ANIMAL_FLAG.PHOENIX_REBORN])) {
+    return game
+      .updateIn(['players', animal.ownerId, 'continent', animal.id], a => a
+        .setIn(['flags', TRAIT_ANIMAL_FLAG.PHOENIX_REBORN], true)
+        .set('food', 1))
+      .update(addToGameLog(['animalReborn', logAnimal(animal)]));
+  }
   const shell = animal.hasTrait(tt.TraitShell, true);
   const specializationIds = getSpecializationIds(animal);
   return game
@@ -819,6 +846,7 @@ export const reducer = createReducer(Map(), {
   , traitParalyze: (state, data) => state.update(data.gameId, game => traitParalyze(game, data))
   , traitSetAnimalFlag: (state, data) => state.update(data.gameId, game => traitSetAnimalFlag(game, data))
   , traitSetValue: (state, data) => state.update(data.gameId, game => traitSetValue(game, data))
+  , traitTeleport: (state, data) => state.update(data.gameId, game => gameMoveAnimal(game, data))
   , traitNotify_Start: (state, data) => state.update(data.gameId, game => traitNotify_Start(game, data))
   // , traitNotify_End: (state, data) => state.update(data.gameId, game => traitNotify_End(game, data))
   , traitTakeShell: (state, data) => state.update(data.gameId, game => traitTakeShell(game, data))

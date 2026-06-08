@@ -13,7 +13,8 @@ import {
   , Deck_customff
   , Deck_lifecycle,
   Deck_Plantarium,
-  Deck_TimeToFly
+  Deck_TimeToFly,
+  Deck_Magic
 } from "../../../../shared/models/game/GameSettings";
 
 const makeDeckHelp = (deck) => (
@@ -62,6 +63,10 @@ export const decksHelper = {
   , 'addon_lifecycle': {
     cardCount: countDeckCards(Deck_lifecycle)
     , help: makeDeckHelp(Deck_lifecycle)
+  }
+  , 'addon_magic': {
+    cardCount: countDeckCards(Deck_Magic)
+    , help: makeDeckHelp(Deck_Magic)
   }
 };
 

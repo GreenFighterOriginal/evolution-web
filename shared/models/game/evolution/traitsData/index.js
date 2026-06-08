@@ -39,6 +39,7 @@ export * from './cons';
 export * from './bonus';
 export * from './customff';
 export * from './lifecycle';
+export * from './magic';
 
 export const TraitWaiter = {
   type: tt.TraitWaiter

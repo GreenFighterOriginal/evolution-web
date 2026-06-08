@@ -46,6 +46,7 @@ export class SettingsRecord extends Record({
   , addon_continents: false
   , addon_bonus: false
   , addon_plantarium: false
+  , addon_magic: false
   , addon_customff: false
   , addon_lifecycle: false
   , seed: null
@@ -65,6 +66,7 @@ export class SettingsRecord extends Record({
       switch (key) {
         case 'randomPlayers':
         case 'halfDeck':
+        case 'addon_magic':
         case 'addon_timeToFly':
         case 'addon_continents':
         case 'addon_bonus':
@@ -203,6 +205,23 @@ export const Deck_Bonus = [
   , [3, cardsData.CardHomeothermyAndFatTissue.type]
   , [3, cardsData.CardShyAndSwimming.type]
   , [3, cardsData.CardShyAndCarnivorous.type]
+];
+
+export const Deck_Magic = [
+  [4, cardsData.CardMagicShield.type]
+  , [4, cardsData.CardManaBurst.type]
+  , [4, cardsData.CardPhaseShift.type]
+  , [4, cardsData.CardLifeLeech.type]
+  , [4, cardsData.CardSoulLink.type]
+  , [4, cardsData.CardArcaneGrowth.type]
+  , [4, cardsData.CardWildTeleport.type]
+  , [4, cardsData.CardIllusion.type]
+  , [4, cardsData.CardCurse.type]
+  , [4, cardsData.CardBlessing.type]
+  , [4, cardsData.CardMirror.type]
+  , [4, cardsData.CardManaDrain.type]
+  , [2, cardsData.CardPhoenix.type]
+  , [4, cardsData.CardEntropy.type]
 ];
 
 export const Deck_Plantarium = [

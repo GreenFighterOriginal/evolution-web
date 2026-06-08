@@ -318,6 +318,15 @@ const traitTakeShell = (gameId, continentId, animalId, trait) => ({
   , data: {gameId, continentId, animalId, trait}
 });
 
+const traitTeleport = (gameId, animalId, position) => ({
+  type: 'traitTeleport'
+  , data: {gameId, animalId, position}
+});
+
+export const server$traitTeleport = (game, sourceAnimal, position) => (dispatch) => {
+  dispatch(server$game(game.id, traitTeleport(game.id, sourceAnimal.id, position)));
+};
+
 export const server$checkForViviparous = (gameId, animalId, callback) => (dispatch, getState) => {
   const game = selectGame(getState, gameId);
   const animal = game.locateAnimal(animalId);

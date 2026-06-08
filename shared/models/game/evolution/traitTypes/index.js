@@ -70,3 +70,20 @@ export const TraitCystInitial = 'TraitCystInitial';
 export const TraitCyst = 'TraitCyst';
 export const TraitStressful = 'TraitStressful';
 export const TraitMammal = 'TraitMammal';
+
+// Magic traits (custom module)
+export const TraitMagicShield = 'TraitMagicShield';
+export const TraitManaBurst = 'TraitManaBurst';
+export const TraitPhaseShift = 'TraitPhaseShift';
+export const TraitTimeDilation = 'TraitTimeDilation';
+export const TraitLifeLeech = 'TraitLifeLeech';
+export const TraitSoulLink = 'TraitSoulLink';
+export const TraitArcaneGrowth = 'TraitArcaneGrowth';
+export const TraitWildTeleport = 'TraitWildTeleport';
+export const TraitIllusion = 'TraitIllusion';
+export const TraitCurse = 'TraitCurse';
+export const TraitBlessing = 'TraitBlessing';
+export const TraitMirror = 'TraitMirror';
+export const TraitManaDrain = 'TraitManaDrain';
+export const TraitPhoenix = 'TraitPhoenix';
+export const TraitEntropy = 'TraitEntropy';

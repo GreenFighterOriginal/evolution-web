@@ -20,8 +20,9 @@ import {
   server$traitStartCooldown, startCooldown,
   traitAmbushActivate,
   traitParalyze, traitQuestion
+  , server$traitSetAnimalFlag, traitMoveFood
 } from "../../../../actions/trait";
-import {HUNT_FLAG, TRAIT_COOLDOWN_DURATION, TRAIT_COOLDOWN_LINK, TRAIT_COOLDOWN_PLACE} from "../constants";
+import {HUNT_FLAG, TRAIT_COOLDOWN_DURATION, TRAIT_COOLDOWN_LINK, TRAIT_COOLDOWN_PLACE, TRAIT_ANIMAL_FLAG} from "../constants";
 import {getErrorOfAnimalEatingFromPlant, getErrorOfAnimalEatingFromPlantNoCD} from "../../../../actions/trait.checks";
 import {
   findAnglerfish,
@@ -128,6 +129,21 @@ export const server$huntProcess = (gameId) => (dispatch, getState) => {
   const attackEntity = getHuntingEntity(game);
   const attackTrait = game.locateTrait(hunt.attackTraitId, hunt.attackEntityId);
   const targetAnimal = game.locateAnimal(hunt.targetAid);
+
+  // Magic flags handling: phased animals avoid attacks, magic shield blocks one attack
+  if (targetAnimal && targetAnimal.hasFlag && targetAnimal.hasFlag(TRAIT_ANIMAL_FLAG.PHASED)) {
+    // consume phased (temporary) and skip hunt
+    dispatch(server$traitSetAnimalFlag(game, targetAnimal, TRAIT_ANIMAL_FLAG.PHASED, false));
+    dispatch(server$huntEnd(gameId));
+    return;
+  }
+
+  if (targetAnimal && targetAnimal.hasFlag && targetAnimal.hasFlag(TRAIT_ANIMAL_FLAG.MAGIC_SHIELD)) {
+    // consume shield and skip damage
+    dispatch(server$traitSetAnimalFlag(game, targetAnimal, TRAIT_ANIMAL_FLAG.MAGIC_SHIELD, false));
+    dispatch(server$huntEnd(gameId));
+    return;
+  }
 
   let animalAnglerfish = findAnglerfish(game, targetAnimal);
   if (animalAnglerfish) {
@@ -325,6 +341,13 @@ export const server$huntKill = (gameId) => (dispatch, getState) => {
   const traitPoisonous = targetAnimal.hasTrait(tt.TraitPoisonous);
   if (traitPoisonous && !traitPoisonous.isEqual(disabledTraitId)) {
     dispatch(server$traitActivate(game.id, targetAnimal.id, traitPoisonous, attackEntity));
+  }
+
+  // ManaDrain: if target has trait that drains mana, drain 1 food from attacker
+  const traitManaDrain = targetAnimal.hasTrait(tt.TraitManaDrain);
+  if (traitManaDrain && !traitManaDrain.isEqual(disabledTraitId)) {
+    // drain 1 food from attacker
+    dispatch(server$game(game.id, traitMoveFood(game.id, attackEntity.id, -1, tt.TraitManaDrain, targetAnimal.id)));
   }
 
   dispatch(huntSetFlag(game.id, HUNT_FLAG.FEED_SCAVENGERS));
