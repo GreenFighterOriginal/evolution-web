@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: evolution-web-backend
+    env: node
+    plan: free
+    repo: https://github.com/ivan-work/evolution-web
+    branch: master
+    buildCommand: npm ci && npm run build
+    startCommand: npm run server:start
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 2000
+      - key: MONGO_URL
+        fromSecret: MONGO_URL
+      - key: JWT_SECRET
+        fromSecret: JWT_SECRET
+      - key: WRITE_STATS
+        value: "false"
